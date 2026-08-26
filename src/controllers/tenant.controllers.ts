@@ -2,7 +2,7 @@ import { Request, Response, NextFunction } from "express";
 import { createTenant, updateTenant, deactivateTenant, reactivateTenant, getTenants } from '../services/tenant.services';
 
 interface Name { name: string; }
-interface Id { id: string }
+interface Id { id?: string }
 export const registerTenant = async (req: Request< {}, {}, Name>, res: Response, next: NextFunction): Promise<void> => {
 const { name } = req.body;
 try {
@@ -40,6 +40,20 @@ export const reactivateTenantController = async (req: Request<Id>, res: Response
     try {
         const success = await reactivateTenant(Number(id));
         res.status(200).json({ message: "Tenant reactivated" });
+    } catch (error) {
+        next(error);
+    }
+}
+
+interface TenantQuery { id?: string; isActive?: string; }
+
+export const getTenantsController = async (req: Request<{}, {}, {}, TenantQuery>, res: Response, next: NextFunction): Promise<void> => {
+    const { id, isActive } = req.query;
+    try {
+        const isActiveFilter = isActive === undefined ? undefined : isActive === "true";
+        const idFilter = id === undefined ? undefined : Number(id);
+        const result = await getTenants(idFilter, isActiveFilter);
+        res.status(200).json(result);
     } catch (error) {
         next(error);
     }

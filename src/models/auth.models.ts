@@ -14,7 +14,7 @@ export const getuser = async (email: string): Promise<Users | null> => {
     return result.rows[0] ?? null;
 }
 
-export const getUserById = async (id: number): Promise<Users | null> => {
-    const result = await pool.query(`SELECT id, email, role, tenant_id as "tenantId", password_hash as "passwordHash", created_at as "createdAt" FROM users WHERE id = $1`, [id] );
+export const getUserById = async (id: number, tenantId: number): Promise<Users | null> => {
+    const result = await pool.query(`SELECT id, email, role, password_hash as "passwordHash", created_at as "createdAt" FROM users WHERE id = $1 AND is_active = true AND tenant_id = $2`, [id, tenantId] );
     return result.rows[0] ?? null;
 }
