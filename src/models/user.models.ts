@@ -37,7 +37,7 @@ export const updateProfile = async (id: number, tenantId: number, email: string)
 }
 
 export const updatePassword = async (id: number, tenantId: number, passwordHash: string): Promise<Users | null> => {
-    const result = await pool.query(`UPDATE users SET password_hash = $1, updated_at = NOW()  WHERE id = $2 AND tenant_id = $3  RETURNING ${USER_COLUMNS}`,[passwordHash, id, tenantId]);
+    const result = await pool.query(`UPDATE users SET password_hash = $1, updated_at = NOW(), must_change_password = false  WHERE id = $2 AND tenant_id = $3  RETURNING ${USER_COLUMNS}`,[passwordHash, id, tenantId]);
     return result.rows[0] ?? null;
 }
 
@@ -53,5 +53,10 @@ export const deactivate = async (id: number, tenantId: number): Promise<boolean>
 
 export const reactivate = async (id: number, tenantId: number): Promise<boolean> => {
     const result = await pool.query( `UPDATE users SET is_active = true, updated_at = NOW() WHERE id = $1 AND tenant_id = $2`, [id, tenantId] );
+    return (result.rowCount ?? 0) > 0;
+}
+
+export const mustChange = async ( email: string ): Promise<boolean> => {
+    const result = await pool.query( `UPDATE users SET must_change_Password = true WHERE email = $1 AND is_active = true`, [email] );
     return (result.rowCount ?? 0) > 0;
 }
