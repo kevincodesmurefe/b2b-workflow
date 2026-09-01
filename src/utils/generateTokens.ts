@@ -11,6 +11,6 @@ export const generateRefreshToken = (user: Users): string => {
     return jwt.sign({userId: user.id, tenantId: user.tenantId, jti: crypto.randomUUID()}, config.secrets.refreshSecret, { expiresIn: "7d" });
 }
 
-export const generatePasswordResetToken = (user: Users): string => {
-    return jwt.sign({userId: user.id, jti: crypto.randomUUID()}, config.secrets.passwordResetSecret, { expiresIn: "15m" });
+export const generatePasswordResetToken = (user: Users ): string => {
+    return jwt.sign({userId: user.id, tenantId: user.tenantId, jti: crypto.randomUUID()}, config.secrets.passwordResetSecret, { expiresIn: "15m" });
 }

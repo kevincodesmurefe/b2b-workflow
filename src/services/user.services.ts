@@ -1,7 +1,9 @@
 import bcrypt from 'bcrypt';
 import * as userModel from '../models/user.models';
+import * as authModels from '../models/auth.models';
 import { Users } from '../models/auth.models';
 import { AppError } from '../utils/appError';
+import { get } from 'node:http';
 
 export type SafeUser = Omit<Users, 'passwordHash'>;
 
@@ -44,6 +46,14 @@ export const updateUserPassword = async (id: number, tenantId: number, newPasswo
     return sanitizeUser(user);
 }
 
+export const verifyPassword = async (id: number, tenantId: number, oldPassword: string): Promise<boolean> => {
+    const getUser = await authModels.getUserById(id, tenantId);
+    if (!getUser ) { throw new AppError('User not found', 404); return false; }
+    const dummyHash = "$2b$10$invalidhashthatisfakePADDINGXXXXXXXXXXXXXX";
+    const isMatch = await bcrypt.compare(oldPassword, getUser?.passwordHash ?? dummyHash);
+    return isMatch;
+}
+
 export const updateUserRole = async (id: number, tenantId: number, role: Users["role"]): Promise<SafeUser> => {
     const user = await userModel.updateRole(id, tenantId, role);
     if (!user) throw new AppError("User not found", 404);
@@ -59,3 +69,4 @@ export const reactivateUser = async (id: number, tenantId: number): Promise<void
     const success = await userModel.reactivate(id, tenantId);
     if (!success) throw new AppError("User not found", 404);
 }
+

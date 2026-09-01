@@ -34,12 +34,32 @@ interface RefreshTokenPayload {
     tenantId: number;
 }
 export interface RefreshBody { refreshToken: string; };
-export const verifyRefreshToken = async ( req: Request<{}, {}, RefreshBody>, res: Response, next: NextFunction ): Promise<void> => {
+export const verifyRefreshToken = ( req: Request<{}, {}, RefreshBody>, res: Response, next: NextFunction ): void => {
     const { refreshToken } = req.body;
     if (!refreshToken) { res.status(401).json({message: "Token is required"}); return; }
     try {
         const decoded = jwt.verify(refreshToken, config.secrets.refreshSecret) as RefreshTokenPayload;
         req.user = {userId: decoded.userId,tenantId: decoded.tenantId};
+        next();
+        return;
+    } catch (error) {
+        next(error);
+    }
+}
+
+export interface resetBody {
+    resetToken: string;
+    password: string;
+    tenantId: number;
+    userId: number;
+}
+
+export const verifyResetToken = async (req: Request<{}, {}, resetBody>, res: Response, next: NextFunction): Promise<void> => {
+    const { resetToken, password } = req.body;
+    if (!resetToken || !password) { res.status(400).json({message: "Password and token are required"}); }
+    try {
+        const decoded = jwt.verify(resetToken, config.secrets.passwordResetSecret) as RefreshTokenPayload;
+        req.body = { tenantId: decoded.tenantId, userId: decoded.userId, resetToken, password  };
         next();
         return;
     } catch (error) {
