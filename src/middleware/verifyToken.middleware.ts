@@ -56,7 +56,7 @@ export interface resetBody {
 
 export const verifyResetToken = async (req: Request<{}, {}, resetBody>, res: Response, next: NextFunction): Promise<void> => {
     const { resetToken, password } = req.body;
-    if (!resetToken || !password) { res.status(400).json({message: "Password and token are required"}); }
+    if (!resetToken || !password) { res.status(400).json({message: "Password and token are required"}); return; }
     try {
         const decoded = jwt.verify(resetToken, config.secrets.passwordResetSecret) as RefreshTokenPayload;
         req.body = { tenantId: decoded.tenantId, userId: decoded.userId, resetToken, password  };

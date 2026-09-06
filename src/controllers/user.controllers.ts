@@ -60,7 +60,7 @@ export const updateUserPasswordController = async (req: Request<{}, {}, UpdatePa
     if (!oldPassword || !newPassword) { res.status(400).json({message: 'All fields are required'}); return; }
     try {
         const verifyPassword = await userService.verifyPassword(userId, tenantId, oldPassword);
-        if (!verifyPassword) { res.status(400).json({message: "Incorrect Password"}); }
+        if (!verifyPassword) { res.status(400).json({message: "Incorrect Password"}); return; }
         const user = await userService.updateUserPassword(userId, tenantId, newPassword);
         res.status(200).json(user);
         await logoutAll(userId);

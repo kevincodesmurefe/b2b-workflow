@@ -50,7 +50,7 @@ export const loginController = async (req: Request<{}, {}, Login>, res: Response
 
  export const logoutAllController = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
         const { userId } = req.user;
-        if (!userId) { res.status(400).json({message: "User Id is required"}); }
+        if (!userId) { res.status(400).json({message: "User Id is required"}); return; }
         try {
             const result = await logoutAll(userId);
             if (!result) { throw new AppError('active sessions not found', 404); }
