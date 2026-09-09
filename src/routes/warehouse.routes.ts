@@ -3,7 +3,7 @@ import { verifyAccessToken } from "../middleware/verifyToken.middleware";
 import { requireRole } from '../middleware/requireRole.middleware';
 import * as warehouseController from '../controllers/warehouse.controllers';
 
-const router = Router();
+export const router = Router();
 
 router.use(verifyAccessToken, requireRole('super_admin', 'business_admin'));
 

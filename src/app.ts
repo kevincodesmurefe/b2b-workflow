@@ -10,6 +10,7 @@ import userRoutes from './routes/user.routes';
 import authRoutes from './routes/auth.routes';
 import resetRoutes from './routes/passowrdReset.routes';
 import warehouseRoutes from './routes/warehouse.routes';
+import productRoutes from './routes/product.routes';
 import { errorHandler } from './middleware/errorHandler.middleware';
 
 app.use('/auth', authRoutes);
@@ -17,6 +18,7 @@ app.use('/users', userRoutes);
 app.use('/tenants', tenantRoutres);
 app.use('/password/', resetRoutes);
 app.use('/warehouses', warehouseRoutes);
+app.use('/products', productRoutes);
 
 app.get("/health", (req: Request, res: Response) => { res.status(200).json({ status: "ok" }); });
 app.use((req: Request, res: Response, next: NextFunction): void => { res.status(404).json({ message: `route ${req.method} ${req.url} not found` }); });
