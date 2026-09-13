@@ -1,4 +1,4 @@
-import { PoolClient } from 'pg';
+import { PoolClient, Result } from 'pg';
 import { pool } from '../db/pool';
 import { AppError } from '../utils/appError';
 
@@ -34,14 +34,15 @@ export const adjustInventory = async ( tenantId: number, warehouseId: number, pr
 };
 
 
-export const transferStock = async (userId: number, tenantId: number, productId: number, fromWarehouseId: number, toWarehouseId: number, quantity: number ): Promise<void> => {
+export const transferStock = async (userId: number, tenantId: number, productId: number, fromWarehouseId: number, toWarehouseId: number, quantity: number ) => {
     const client = await pool.connect();
     try {
         await client.query('BEGIN');
-        await client.query(`INSERT INTO inventory_transfers ( tenant_id, product_id, from_warehouse_id, to_warehouse_id, quantity, created_by ) VALUES ($1, $2, $3, $4, $5, $6)`, [ tenantId, productId, fromWarehouseId, toWarehouseId, quantity, userId ]);
+        const result = await client.query(`INSERT INTO inventory_transfers ( tenant_id, product_id, from_warehouse_id, to_warehouse_id, quantity, created_by ) VALUES ($1, $2, $3, $4, $5, $6) RETURNING *`, [ tenantId, productId, fromWarehouseId, toWarehouseId, quantity, userId ]);
         await adjustInventoryOnClient( client, tenantId, fromWarehouseId, productId, -quantity, 'transfer_out' );
         await adjustInventoryOnClient( client, tenantId, toWarehouseId, productId, quantity, 'transfer_in' );
         await client.query('COMMIT');
+        return result.rows[0];
     } catch (error) {
         await client.query('ROLLBACK');
         throw error;
@@ -69,4 +70,4 @@ export const getInventory = async ( tenantId: number, warehouseId?: number, prod
     query += ` ORDER BY inventory.updated_at DESC`;
     const result = await pool.query(query, values);
     return result.rows;
-};
+}

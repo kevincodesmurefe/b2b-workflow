@@ -1,5 +1,5 @@
 import { AppError } from "../utils/appError";
-import { adjustInventory, getInventory, Inventory } from "../models/inventory.models";
+import { adjustInventory, getInventory, Inventory, transferStock } from "../models/inventory.models";
 import { get } from "../models/warehouse.models";
 
 export const adjustInventoryService = async ( tenantId: number, warehouseId: number, productId: number, changeQuantity: number, reason: | 'purchase' | 'sale' | 'transfer_in' | 'transfer_out' | 'adjustment' | 'return' ): Promise<void> => {
@@ -9,8 +9,13 @@ export const adjustInventoryService = async ( tenantId: number, warehouseId: num
     const exists = await get(tenantId, warehouseId, true);
     if (!exists) { throw new AppError('Warehouse not found', 404); return;}
     await adjustInventory( tenantId, warehouseId, productId, changeQuantity, reason );
-};
+}
 
 export const getInventoryService = async ( tenantId: number, warehouseId?: number, productId?: number ): Promise<Inventory[]> => {
     return await getInventory(tenantId, warehouseId, productId);
+}
+
+export const transferStockService = async ( userId: number, tenantId: number, productId: number, fromWarehouseId: number, toWarehouseId: number, quantity: number ) => {
+    if (toWarehouseId == fromWarehouseId) { throw new AppError (`Transfer warehouses must be different`, 400); return; }
+    return await transferStock(userId, tenantId, productId, fromWarehouseId, toWarehouseId, quantity);
 }

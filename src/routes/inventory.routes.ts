@@ -9,3 +9,6 @@ router.use(verifyAccessToken, requireRole('super_admin', 'business_admin', 'ware
 
 router.get('/', inventoryControllers.getInventoryController);
 router.post('/', inventoryControllers.adjustInventoryController);
+router.post('/transfer', inventoryControllers.transferStockController);
+
+export default router;
