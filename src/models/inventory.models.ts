@@ -1,4 +1,4 @@
-import { PoolClient, Result } from 'pg';
+import { PoolClient } from 'pg';
 import { pool } from '../db/pool';
 import { AppError } from '../utils/appError';
 
