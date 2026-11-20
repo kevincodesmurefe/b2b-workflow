@@ -6,14 +6,13 @@ import { Request, Response, NextFunction } from 'express';
 
 interface ResetBody {
     userId: number;
-    email: string;
 }
 
 export const resetEmailController = async (req: Request<{}, {}, ResetBody>, res: Response, next: NextFunction): Promise<void> => {
     const { tenantId } = req.user;
-    const { userId, email } = req.body;
+    const { userId } = req.body;
     try {
-        const token = await resetServices.nitiateReset(tenantId, userId);
+        const { token, email } = await resetServices.nitiateReset( tenantId, userId );
         const link = `${config.clientUrl}/reset-password/${token}`;
         await emailServices.passwordResetEmail(link, email);
         res.status(200).json({ message: 'If active user exists, reset email will be sent' });
