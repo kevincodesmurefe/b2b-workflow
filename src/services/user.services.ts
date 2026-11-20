@@ -3,7 +3,7 @@ import * as userModel from '../models/user.models';
 import * as authModels from '../models/auth.models';
 import { Users } from '../models/auth.models';
 import { AppError } from '../utils/appError';
-import { get } from 'node:http';
+import { revokeAllSessions } from '../models/session.models';
 
 export type SafeUser = Omit<Users, 'passwordHash'>;
 
@@ -47,10 +47,11 @@ export const updateUserPassword = async (id: number, tenantId: number, newPasswo
 }
 
 export const verifyPassword = async (id: number, tenantId: number, oldPassword: string): Promise<boolean> => {
-    const getUser = await authModels.getUserById(id, tenantId);
-    if (!getUser ) { throw new AppError('User not found', 404); return false; }
-    const dummyHash = "$2b$10$invalidhashthatisfakePADDINGXXXXXXXXXXXXXX";
-    const isMatch = await bcrypt.compare(oldPassword, getUser?.passwordHash ?? dummyHash);
+    const user = await authModels.getUserById(id, tenantId);
+    const dummyHash = '$2b$10$N9qo8uLOickgx2ZMRZoMyeIjZAgcfl7p92ldGxad68LJZdL17lhWy';
+    const passwordHash = user?.passwordHash ?? dummyHash;
+    const isMatch = await bcrypt.compare(oldPassword, passwordHash);
+    if (!user) throw new AppError('User not found', 404);
     return isMatch;
 }
 
@@ -63,6 +64,7 @@ export const updateUserRole = async (id: number, tenantId: number, role: Users["
 export const deactivateUser = async (id: number, tenantId: number): Promise<void> => {
     const success = await userModel.deactivate(id, tenantId);
     if (!success) throw new AppError("User not found", 404);
+    await revokeAllSessions(id);
 }
 
 export const reactivateUser = async (id: number, tenantId: number): Promise<void> => {

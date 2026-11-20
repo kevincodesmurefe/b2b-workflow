@@ -297,3 +297,19 @@ CREATE TABLE delivery_events (
 );
 
 CREATE INDEX idx_delivery_events_delivery_id ON delivery_events(delivery_id);
+
+-- ---------- SCHEMA ALIGNMENT ----------
+
+-- Tenants: models expect tenant activation status
+ALTER TABLE tenants
+ADD COLUMN IF NOT EXISTS is_active BOOLEAN NOT NULL DEFAULT true;
+
+-- Users: password update flow expects this flag
+ALTER TABLE users
+ADD COLUMN IF NOT EXISTS must_change_password BOOLEAN NOT NULL DEFAULT false;
+
+-- Sessions: JWT/session logic expects a token version
+ALTER TABLE sessions
+ADD COLUMN IF NOT EXISTS token_version INTEGER NOT NULL DEFAULT 0;
+
+CREATE UNIQUE INDEX users_email_unique_idx ON users (LOWER(email));

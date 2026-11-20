@@ -10,7 +10,7 @@ export interface Users {
 }
 
 export const getuser = async (email: string): Promise<Users | null> => {
-    const result = await pool.query(`SELECT id, email, role, tenant_id as "tenantId", password_hash as "passwordHash", created_at as "createdAt" FROM users WHERE email = $1 AND is_active = true LIMIT 1`, [email]);
+    const result = await pool.query(`SELECT id, email, role, tenant_id as "tenantId", password_hash as "passwordHash", created_at as "createdAt" FROM users WHERE LOWER(email) = LOWER($1) AND is_active = true LIMIT 1`, [email]);
     return result.rows[0] ?? null;
 }
 

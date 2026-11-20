@@ -14,7 +14,7 @@ export const getById = async (id: number, tenantId: number): Promise<Users | nul
 }
 
 export const getByEmail = async (email: string, tenantId: number): Promise<Users | null> => {
-    const result = await pool.query(`SELECT ${USER_COLUMNS} FROM users WHERE email = $1 AND tenant_id = $2 AND is_active = true LIMIT 1`,[email, tenantId]);
+    const result = await pool.query(`SELECT ${USER_COLUMNS} FROM users WHERE LOWER(email) = LOWER($1) AND tenant_id = $2 AND is_active = true LIMIT 1`, [email, tenantId]);
     return result.rows[0] ?? null;
 }
 
@@ -57,6 +57,6 @@ export const reactivate = async (id: number, tenantId: number): Promise<boolean>
 }
 
 export const mustChange = async ( email: string ): Promise<boolean> => {
-    const result = await pool.query( `UPDATE users SET must_change_Password = true WHERE email = $1 AND is_active = true`, [email] );
+    const result = await pool.query( `UPDATE users SET must_change_Password = true WHERE LOWER(email) = LOWER($1) AND is_active = true`, [email] );
     return (result.rowCount ?? 0) > 0;
 }

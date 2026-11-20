@@ -6,8 +6,9 @@ import * as userControllers from '../controllers/user.controllers';
 const router = Router();
 
 router.post('/register', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.createUserController);
-router.get('/:id', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.getUserController);
 router.get('/user-list', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.listUsersController);
+
+router.get('/:id', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.getUserController);
 router.patch('/:id/update-profile', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.updateUserProfileController);
 router.patch('/:id/change-role', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.updateUserRoleController);
 router.patch('/:id/deactivate', verifyAccessToken, requireRole('super_admin', 'business_admin'), userControllers.deactivateUserController);

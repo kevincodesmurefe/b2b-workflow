@@ -44,7 +44,7 @@ export interface Refresh {
 export const refresh = async (userId: number, tenantId: number, oldToken: string): Promise<Refresh> => {
     const exists = await getUserById(userId, tenantId);
     const checkTenant = await get(tenantId, true);
-    if (!exists || !checkTenant) { throw new AppError('User not found', 404); }
+    if (!exists || checkTenant.length === 0) { throw new AppError('User not found', 404); }
     const refreshToken = generateRefreshToken(exists);
     const updateSession = await update(userId, oldToken, refreshToken);
     if (!updateSession) { throw new AppError('Invalid or expired session', 401);  }

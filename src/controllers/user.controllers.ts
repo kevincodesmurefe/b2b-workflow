@@ -62,8 +62,8 @@ export const updateUserPasswordController = async (req: Request<{}, {}, UpdatePa
         const verifyPassword = await userService.verifyPassword(userId, tenantId, oldPassword);
         if (!verifyPassword) { res.status(400).json({message: "Incorrect Password"}); return; }
         const user = await userService.updateUserPassword(userId, tenantId, newPassword);
-        res.status(200).json(user);
         await logoutAll(userId);
+        res.status(200).json(user);
         return;
     } catch (error) {
         next(error);
